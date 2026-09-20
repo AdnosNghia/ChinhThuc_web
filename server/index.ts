@@ -11,7 +11,7 @@ import jwt from 'jsonwebtoken';
 import { db, User } from './db.js';
 
 const app = express();
-const mediaDir = path.resolve('public/media');
+const mediaDir = process.env.VERCEL === '1' ? '/tmp/media' : path.resolve('public/media');
 fs.mkdirSync(mediaDir, { recursive: true });
 const upload = multer({ dest: mediaDir, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (_req, file, cb) => cb(null, ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.mimetype)) });
 const port = Number(process.env.PORT || 3001);
