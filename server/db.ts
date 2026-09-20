@@ -1,8 +1,10 @@
 import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
+import path from 'node:path';
 
-export const db = new Database('chinhthuc.sqlite', { readonly: false });
-db.pragma('journal_mode = WAL');
+const databasePath = process.env.DATABASE_PATH || path.resolve(process.cwd(), 'chinhthuc.sqlite');
+export const db = new Database(databasePath, { readonly: false });
+if (process.env.VERCEL !== '1') db.pragma('journal_mode = WAL');
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
   CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, parent_id INTEGER, image TEXT DEFAULT '', sort_order INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1, FOREIGN KEY(parent_id) REFERENCES categories(id));
