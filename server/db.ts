@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'node:path';
 
-const databasePath = process.env.DATABASE_PATH || path.resolve(process.cwd(), 'chinhthuc.sqlite');
+const databasePath = process.env.DATABASE_PATH || (process.env.VERCEL === '1' ? '/tmp/chinhthuc.sqlite' : path.resolve(process.cwd(), 'chinhthuc.sqlite'));
 export const db = new Database(databasePath, { readonly: false });
 if (process.env.VERCEL !== '1') db.pragma('journal_mode = WAL');
 db.exec(`
