@@ -30,7 +30,7 @@ class AdminErrorBoundary extends Component<{ children: React.ReactNode }, { erro
 }
 const isProductDetailRoute = (route: string, hash: string) => route === 'san-pham' && hash.split('/').length > 2;
 const slideIndex = 0; const setSlideIndex = (_index: number) => undefined; const setSlideFailed = (_failed: boolean) => undefined;
-const api = async (path: string, options: RequestInit = {}) => { const response = await fetch(`/api${path}`, { credentials: 'include', headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options }); const data = response.status === 204 ? null : await response.json(); if (!response.ok) throw new Error(data?.message || 'Có lỗi xảy ra.'); return data; };
+const api = async (path: string, options: RequestInit = {}) => { const response = await fetch(`/api${path}`, { credentials: 'include', headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options }); const contentType = response.headers.get('content-type') || ''; const data = response.status === 204 ? null : contentType.includes('application/json') ? await response.json() : { message: `API không khả dụng (${response.status}). Vercel chưa định tuyến backend /api hoặc đang trả về HTML.` }; if (!response.ok || !contentType.includes('application/json')) throw new Error(data?.message || 'API không khả dụng.'); return data; };
 
 function Header({ onMenu, onSearch, user, settings }: { cart?: number; onMenu: () => void; onSearch: (v: string) => void; user?: User | null; onLogout?: () => void; settings?: Record<string,string> }) {
   const [productsOpen, setProductsOpen] = useState(false);
