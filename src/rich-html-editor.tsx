@@ -1,0 +1,10 @@
+import { useEffect, useRef, useState } from 'react';
+
+type Api = (path: string, options?: RequestInit) => Promise<any>;
+export function RichHtmlEditor({ value, onChange, api, importSlug }: { value: string; onChange: (html: string) => void; api: Api; importSlug: string }) {
+  const ref = useRef<HTMLDivElement>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
+  useEffect(() => { if (ref.current && ref.current.innerHTML !== value) ref.current.innerHTML = value || ''; }, [value]);
+  const command = (name: string, arg?: string) => { ref.current?.focus(); document.execCommand(name, false, arg); onChange(ref.current?.innerHTML || ''); };
+  const uploadDocx = async (file: File) => { setBusy(true); setError(''); try { const body = new FormData(); body.append('file', file); const response = await fetch(`/api/admin/${importSlug.startsWith('gioi') ? 'pages' : 'posts'}/${importSlug}/import-docx`, { method: 'POST', credentials: 'include', body }); const result = await response.json(); if (!response.ok) throw new Error(result.message || 'Không thể nhập file Word.'); onChange(result.html); if (ref.current) ref.current.innerHTML = result.html; } catch (e) { setError((e as Error).message); } finally { setBusy(false); } };
+  return <div className="rich-editor"><div className="rich-toolbar"><button type="button" onClick={() => command('bold')}><b>B</b></button><button type="button" onClick={() => command('italic')}><i>I</i></button><button type="button" onClick={() => command('formatBlock','<h2>')}>H2</button><button type="button" onClick={() => command('insertUnorderedList')}>• List</button><label>Nhập Word<input type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" disabled={busy} onChange={e => e.target.files?.[0] && uploadDocx(e.target.files[0])}/></label></div><div ref={ref} className="rich-editor-surface" contentEditable suppressContentEditableWarning onInput={e => onChange(e.currentTarget.innerHTML)} role="textbox" aria-label="Nội dung HTML" />{error && <p className="form-error">{error}</p>}</div>;
+}

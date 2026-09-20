@@ -1,0 +1,2 @@
+import { useState } from 'react';
+export function BrandLogo({ settings = {}, admin = false }: { settings?: Record<string,string>; admin?: boolean }) { const [failed, setFailed] = useState(false); const url = settings.logo_url && !failed ? settings.logo_url : ''; return <span className={`brand-logo ${admin ? 'brand-logo-admin' : ''}`}>{url ? <img src={url} alt="CHÍNH THỰC" onError={() => setFailed(true)}/> : <span className="brandmark">CT</span>}<span><b>CHÍNH THỰC</b><small>{admin ? 'ADMIN CONSOLE' : 'MÁY CẮT KỸ THUẬT SỐ'}</small></span></span>; }

@@ -1,0 +1,22 @@
+const base = process.env.API_BASE || 'http://localhost:3001/api';
+const jsonHeaders = { 'content-type': 'application/json; charset=utf-8', accept: 'application/json; charset=utf-8' };
+const request = async (path, options = {}) => { const response = await fetch(`${base}${path}`, { ...options, headers: { ...jsonHeaders, ...(options.headers || {}) } }); const data = response.status === 204 ? null : await response.json(); return { response, data }; };
+const assert = (label, value) => { if (!value) throw new Error(`FAIL: ${label}`); console.log(`PASS: ${label}`); };
+for (let attempt = 0; attempt < 20; attempt += 1) { try { const health = await request('/health'); if (health.data?.ok) break; } catch { if (attempt === 19) throw new Error('Backend readiness timeout'); } await new Promise(resolve => setTimeout(resolve, 500)); }
+const health = await request('/health'); assert('health endpoint', health.data?.ok === true);
+const products = await request('/products'); assert('published products available', products.data.products.length > 0);
+const email = `smoke-${Date.now()}@example.com`;
+const register = await request('/auth/register', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Smoke User', email, password: 'Test12345!' }) });
+assert('user registration', register.response.status === 201 && register.data.user.role === 'user');
+const unicodeId = `unicode-${Date.now()}`;
+const unicodeName = 'Lưỡi dao rung vonfram kiểm thử tiếng Việt';
+const adminLogin = await request('/auth/login', { method: 'POST', body: JSON.stringify({ email: 'admin@chinhthuc.local', password: 'ChangeMe123!' }) });
+const adminCookie = adminLogin.response.headers.get('set-cookie')?.split(';')[0] || '';
+const unicodeProduct = await request('/admin/products', { method: 'POST', headers: { cookie: adminCookie }, body: JSON.stringify({ id: unicodeId, name: unicodeName, slug: unicodeId, category: 'Lưỡi dao', image: 'https://example.com/test.png', description: 'Kiểm thử UTF-8 đầy đủ dấu tiếng Việt.', gallery: [], specs: [], highlights: [], applications: [], badges: [] }) });
+assert('unicode product create', unicodeProduct.response.status === 201);
+const unicodeList = await request('/admin/products', { headers: { cookie: adminCookie } });
+const unicodeSaved = unicodeList.data.products.find(item => item.id === unicodeId);
+assert('unicode product preserved', unicodeSaved?.name === unicodeName);
+await request(`/admin/products/${unicodeId}`, { method: 'DELETE', headers: { cookie: adminCookie } });
+const admin = await request('/admin/stats'); assert('unauthenticated admin denied', admin.response.status === 401);
+console.log('Portable smoke test completed.');

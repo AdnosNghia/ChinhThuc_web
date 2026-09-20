@@ -1,0 +1,52 @@
+{
+  "name": "chinhthuc",
+  "version": "1.0.0",
+  "description": "CHÍNH THỰC CNC product catalog",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "assets:download": "powershell -ExecutionPolicy Bypass -File scripts/download-assets.ps1",
+    "server": "tsx server/index.ts", "vercel": "npx vercel --build",
+    "server:dev": "tsx watch server/index.ts",
+    "backup": "node scripts/backup-db.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "backup:verify": "node scripts/verify-backup.mjs",
+    "backup:scheduler": "node scripts/backup-scheduler.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@tailwindcss/vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "latest",
+    "mammoth": "^1.12.3",
+    "multer": "^2.4.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.5.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "latest"
+  }
+}
